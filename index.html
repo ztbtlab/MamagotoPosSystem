@@ -80,6 +80,23 @@
     </div>
   </div>
 
+  <!-- せってい がめん（おとなよう: おみせの なまえを ながおし） -->
+  <div id="settingsScreen" class="overlay hidden">
+    <div class="settings-card">
+      <h2>⚙️ せってい</h2>
+      <label class="settings-shop">
+        <span>おみせの なまえ</span>
+        <input id="settingsShopName" type="text" maxlength="16" autocomplete="off">
+      </label>
+      <h3>ねだん</h3>
+      <ul id="priceList" class="price-list"></ul>
+      <div class="settings-buttons">
+        <button id="settingsResetBtn" class="big-btn gray small">ねだんを もとに もどす</button>
+        <button id="settingsCloseBtn" class="big-btn pink">とじる</button>
+      </div>
+    </div>
+  </div>
+
   <div id="confetti" class="confetti" aria-hidden="true"></div>
 
   <script src="app.js"></script>

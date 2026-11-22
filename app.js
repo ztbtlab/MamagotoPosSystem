@@ -27,6 +27,7 @@ const PRODUCTS = [
   { id: 'chiffon',   name: 'シフォンケーキ', emoji: '🍞', price: 300, img: '' },
   { id: 'yakiniku',  name: 'やきにく',       emoji: '🥩', price: 500, img: '' },
   { id: 'muscat',    name: 'マスカット',     emoji: '🍇', price: 400, img: '', tint: 'hue-rotate(195deg) saturate(1.4) brightness(1.2)' },
+  { id: 'icecup',    name: 'アイス',         emoji: '🍨', price: 200, img: '' },
 ];
 
 const MONEY = [
@@ -60,6 +61,24 @@ const state = {
   receiptNo: store.get('receiptNo', 0),
   shopName: store.get('shopName', 'ケーキやさん'),
 };
+
+// しょきの ねだん（「もとに もどす」で つかう）と、ほぞん した ねだん
+const DEFAULT_PRICES = Object.fromEntries(PRODUCTS.map(p => [p.id, p.price]));
+const PRICE_MIN = 0;
+const PRICE_MAX = 99990;
+function applySavedPrices() {
+  const saved = store.get('prices', {});
+  for (const p of PRODUCTS) {
+    const v = saved[p.id];
+    p.price = Number.isFinite(v) ? v : DEFAULT_PRICES[p.id];
+  }
+}
+function savePrices() {
+  const changed = {};
+  for (const p of PRODUCTS) if (p.price !== DEFAULT_PRICES[p.id]) changed[p.id] = p.price;
+  store.set('prices', changed);
+}
+applySavedPrices();
 
 /* =========================================================
  *  こうかおん（Web Audio API で その場で つくる）
@@ -409,6 +428,66 @@ function renderToggles() {
   $('shopNameText').textContent = state.shopName;
 }
 
+/* ---------- ねだん せってい（おとなよう） ---------- */
+function clampPrice(v) {
+  v = Math.round(Number(v));
+  if (!Number.isFinite(v)) return null;
+  return Math.min(PRICE_MAX, Math.max(PRICE_MIN, v));
+}
+
+function renderSettings() {
+  $('settingsShopName').value = state.shopName;
+  const list = $('priceList');
+  list.innerHTML = '';
+  for (const p of PRODUCTS) {
+    const row = document.createElement('li');
+    row.className = 'price-row';
+    row.innerHTML = `
+      ${iconHTML(p)}
+      <span class="name">${p.name}</span>
+      <button class="step" data-d="-100">−100</button>
+      <button class="step" data-d="-10">−10</button>
+      <input type="number" inputmode="numeric" pattern="[0-9]*" min="${PRICE_MIN}" max="${PRICE_MAX}" step="10" value="${p.price}">
+      <span class="unit">えん</span>
+      <button class="step plus" data-d="10">＋10</button>
+      <button class="step plus" data-d="100">＋100</button>`;
+    const input = row.querySelector('input');
+    const set = (v) => {
+      const c = clampPrice(v);
+      if (c === null) { input.value = p.price; return; }
+      p.price = c;
+      input.value = c;
+      savePrices();
+    };
+    row.querySelectorAll('.step').forEach(b => b.addEventListener('click', () => {
+      set(p.price + Number(b.dataset.d));
+      Sound.tap();
+    }));
+    input.addEventListener('change', () => set(input.value));
+    input.addEventListener('focus', () => input.select());
+    list.appendChild(row);
+  }
+}
+
+function openSettings() {
+  Sound.tap();
+  renderSettings();
+  $('settingsScreen').classList.remove('hidden');
+}
+
+function closeSettings() {
+  // にゅうりょく ちゅうの ねだんも ほぞん
+  const active = document.activeElement;
+  if (active && active.tagName === 'INPUT') active.blur();
+  const name = $('settingsShopName').value.trim().slice(0, 16);
+  if (name) { state.shopName = name; store.set('shopName', name); }
+  $('settingsScreen').classList.add('hidden');
+  renderProducts();
+  renderCart();
+  renderToggles();
+  Sound.tap();
+}
+
 /* ---------- はじめる ---------- */
 function init() {
   renderProducts();
@@ -443,21 +522,25 @@ function init() {
     if (state.voice) say('こえ オン');
   });
 
-  // おみせの なまえ: ながおし（1びょう）で かえられる（おとなよう）
+  // せってい: おみせの なまえを 1.5びょう ながおし（おとなよう）
   let pressTimer = null;
   const shop = $('shopName');
-  const cancel = () => clearTimeout(pressTimer);
+  const cancel = () => { clearTimeout(pressTimer); shop.classList.remove('pressing'); };
   shop.addEventListener('pointerdown', () => {
-    pressTimer = setTimeout(() => {
-      const name = prompt('おみせの なまえ', state.shopName);
-      if (name && name.trim()) {
-        state.shopName = name.trim().slice(0, 16);
-        store.set('shopName', state.shopName);
-        renderToggles();
-      }
-    }, 1000);
+    shop.classList.add('pressing');
+    pressTimer = setTimeout(() => { cancel(); openSettings(); }, 1500);
   });
   ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => shop.addEventListener(e, cancel));
+  shop.addEventListener('contextmenu', e => e.preventDefault());
+
+  $('settingsCloseBtn').addEventListener('click', closeSettings);
+  $('settingsResetBtn').addEventListener('click', () => {
+    if (!confirm('ねだんを ぜんぶ さいしょに もどしますか？')) return;
+    for (const p of PRODUCTS) p.price = DEFAULT_PRICES[p.id];
+    savePrices();
+    renderSettings();
+    Sound.down();
+  });
 }
 
 init();

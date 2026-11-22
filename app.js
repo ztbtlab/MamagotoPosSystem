@@ -19,7 +19,7 @@ const PRODUCTS = [
   { id: 'icecream',  name: 'ソフトクリーム', emoji: '🍦', price: 200, img: '' },
   { id: 'juice',     name: 'ジュース',       emoji: '🧃', price: 100, img: '' },
   { id: 'tea',       name: 'こうちゃ',       emoji: '☕', price: 200, img: '' },
-  { id: 'nabana',    name: 'なばな',         emoji: '🥬', price: 100, img: '' },
+  { id: 'banana',    name: 'ばなな',         emoji: '🍌', price: 100, img: '' },
   { id: 'grape',     name: 'ぶどう',         emoji: '🍇', price: 300, img: '' },
   { id: 'babystar',  name: 'ベビースター',   emoji: '🍜', price: 100, img: '' },
   { id: 'monsterck', name: 'ラブブクッキー', emoji: '🐰', price: 200, img: '' },

@@ -374,8 +374,6 @@ img.emoji { object-fit: contain; display: block; }
 
 /* ---------- せってい（おとなよう） ---------- */
 input { -webkit-user-select: text; user-select: text; font-family: inherit; color: inherit; }
-.shop-name { transition: transform 1.5s linear, background-color 1.5s linear; }
-.shop-name.pressing { transform: scale(0.95); background-color: var(--pink-light); }
 .settings-card {
   background: var(--cream);
   border-radius: 36px;

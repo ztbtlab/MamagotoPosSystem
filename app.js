@@ -522,16 +522,8 @@ function init() {
     if (state.voice) say('こえ オン');
   });
 
-  // せってい: おみせの なまえを 1.5びょう ながおし（おとなよう）
-  let pressTimer = null;
-  const shop = $('shopName');
-  const cancel = () => { clearTimeout(pressTimer); shop.classList.remove('pressing'); };
-  shop.addEventListener('pointerdown', () => {
-    shop.classList.add('pressing');
-    pressTimer = setTimeout(() => { cancel(); openSettings(); }, 1500);
-  });
-  ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => shop.addEventListener(e, cancel));
-  shop.addEventListener('contextmenu', e => e.preventDefault());
+  // せってい: みぎうえの ⚙️ ボタン
+  $('settingsBtn').addEventListener('click', openSettings);
 
   $('settingsCloseBtn').addEventListener('click', closeSettings);
   $('settingsResetBtn').addEventListener('click', () => {

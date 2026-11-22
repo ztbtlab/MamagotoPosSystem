@@ -20,7 +20,7 @@ Single object centered, front 3/4 view, transparent background, no text, no shad
 square 512x512, plenty of padding around the object.
 ```
 
-## 商品（16枚）
+## 商品（19枚）
 
 | ファイル名 | 商品 | プロンプト（共通スタイルの後に続ける） |
 | --- | --- | --- |
@@ -40,6 +40,9 @@ square 512x512, plenty of padding around the object.
 | `grape.png` | ぶどう | A bunch of round purple grapes with a green leaf and a curly vine. |
 | `babystar.png` | ベビースター | A small snack bag spilling crunchy, golden fried mini noodle snack pieces (no logos, no brand names, plain pastel bag with a star pattern). |
 | `monsterck.png` | ラブブクッキー | A cookie shaped like an original mischievous little monster with tall bunny-like ears and a toothy grin, decorated with pastel icing. Original design, not based on any existing character. |
+| `chiffon.png` | シフォンケーキ | A fluffy slice of chiffon cake (tall, light golden sponge with an airy texture) with a dollop of whipped cream and a mint leaf. |
+| `yakiniku.png` | やきにく | Japanese yakiniku: a few slices of grilled beef with nice grill marks on a small round grill plate, with a little dish of dipping sauce. |
+| `muscat.png` | マスカット | A bunch of round, shiny light-green muscat grapes with a green leaf and a curly vine. |
 
 ## あると楽しいもの（任意）
 

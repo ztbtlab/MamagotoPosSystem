@@ -5,6 +5,7 @@
  *  - しょうひんを ふやしたい・かえたい ときは PRODUCTS を へんしゅう
  *  - img を いれると えもじ の かわりに イラストが でます
  *    （れい: img: 'images/shortcake.png'）
+ *  - tint で えもじの いろを かえられます（れい: マスカット）
  * ========================================================= */
 const PRODUCTS = [
   { id: 'shortcake', name: 'ショートケーキ', emoji: '🍰', price: 300, img: '' },
@@ -23,6 +24,9 @@ const PRODUCTS = [
   { id: 'grape',     name: 'ぶどう',         emoji: '🍇', price: 300, img: '' },
   { id: 'babystar',  name: 'ベビースター',   emoji: '🍜', price: 100, img: '' },
   { id: 'monsterck', name: 'ラブブクッキー', emoji: '🐰', price: 200, img: '' },
+  { id: 'chiffon',   name: 'シフォンケーキ', emoji: '🍞', price: 300, img: '' },
+  { id: 'yakiniku',  name: 'やきにく',       emoji: '🥩', price: 500, img: '' },
+  { id: 'muscat',    name: 'マスカット',     emoji: '🍇', price: 400, img: '', tint: 'hue-rotate(195deg) saturate(1.4) brightness(1.2)' },
 ];
 
 const MONEY = [
@@ -178,7 +182,8 @@ const productById = (id) => PRODUCTS.find(p => p.id === id);
 
 function iconHTML(p, cls = 'emoji') {
   if (p.img) return `<img class="${cls}" src="${p.img}" alt="" draggable="false">`;
-  return `<span class="${cls}">${p.emoji}</span>`;
+  const style = p.tint ? ` style="filter:${p.tint}"` : '';
+  return `<span class="${cls}"${style}>${p.emoji}</span>`;
 }
 
 function total() {
@@ -232,7 +237,7 @@ function flyToCart(p, fromEl) {
   const from = fromEl.getBoundingClientRect();
   const el = document.createElement('div');
   el.className = 'fly';
-  el.innerHTML = p.img ? `<img src="${p.img}" style="width:60px;height:60px;object-fit:contain">` : p.emoji;
+  el.innerHTML = p.img ? `<img src="${p.img}" style="width:60px;height:60px;object-fit:contain">` : iconHTML(p, '');
   el.style.left = (from.left + from.width / 2 - 30) + 'px';
   el.style.top = (from.top + from.height / 2 - 40) + 'px';
   document.body.appendChild(el);
@@ -348,7 +353,7 @@ function showReceipt(t, deposit, change) {
   let lines = '';
   for (const [id, q] of state.cart) {
     const p = productById(id);
-    lines += `<div class="r-line"><span>${p.emoji} ${p.name}${q > 1 ? ` ×${q}` : ''}</span><span>${yen(p.price * q)}えん</span></div>`;
+    lines += `<div class="r-line"><span>${iconHTML({ ...p, img: '' }, '')} ${p.name}${q > 1 ? ` ×${q}` : ''}</span><span>${yen(p.price * q)}えん</span></div>`;
   }
   $('receipt').innerHTML = `
     <div class="r-head">

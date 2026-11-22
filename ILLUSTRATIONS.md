@@ -20,7 +20,7 @@ Single object centered, front 3/4 view, transparent background, no text, no shad
 square 512x512, plenty of padding around the object.
 ```
 
-## 商品（19枚）
+## 商品（20枚）
 
 | ファイル名 | 商品 | プロンプト（共通スタイルの後に続ける） |
 | --- | --- | --- |
@@ -43,6 +43,7 @@ square 512x512, plenty of padding around the object.
 | `chiffon.png` | シフォンケーキ | A fluffy slice of chiffon cake (tall, light golden sponge with an airy texture) with a dollop of whipped cream and a mint leaf. |
 | `yakiniku.png` | やきにく | Japanese yakiniku: a few slices of grilled beef with nice grill marks on a small round grill plate, with a little dish of dipping sauce. |
 | `muscat.png` | マスカット | A bunch of round, shiny light-green muscat grapes with a green leaf and a curly vine. |
+| `icecup.png` | アイス | Two round scoops of ice cream (strawberry pink and vanilla) in a small glass cup, with a wafer stick and a cherry on top. |
 
 ## あると楽しいもの（任意）
 

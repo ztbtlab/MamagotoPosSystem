@@ -27,6 +27,7 @@ const PRODUCTS = [
   { id: 'chiffon',   name: 'シフォンケーキ', emoji: '🍞', price: 300, img: '' },
   { id: 'yakiniku',  name: 'やきにく',       emoji: '🥩', price: 500, img: '' },
   { id: 'muscat',    name: 'マスカット',     emoji: '🍇', price: 400, img: '', tint: 'hue-rotate(195deg) saturate(1.4) brightness(1.2)' },
+  { id: 'icecup',    name: 'アイス',         emoji: '🍨', price: 200, img: '' },
 ];
 
 const MONEY = [

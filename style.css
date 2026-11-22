@@ -95,7 +95,7 @@ button {
   background: #fff;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 12px 6px 14px;
+  padding: 8px 4px 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -104,8 +104,8 @@ button {
   transition: transform 0.08s;
 }
 .product:active, .product.pop { transform: scale(0.93); }
-.product .emoji { font-size: clamp(54px, 7vw, 76px); line-height: 1.1; }
-.product .name { font-size: 20px; font-weight: 800; }
+.product .emoji { font-size: clamp(46px, 5vw, 62px); line-height: 1.1; }
+.product .name { font-size: 18px; font-weight: 800; white-space: nowrap; }
 .product .price {
   font-size: 20px;
   font-weight: 800;

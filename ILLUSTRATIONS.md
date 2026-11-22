@@ -20,7 +20,7 @@ Single object centered, front 3/4 view, transparent background, no text, no shad
 square 512x512, plenty of padding around the object.
 ```
 
-## 商品（12枚）
+## 商品（16枚）
 
 | ファイル名 | 商品 | プロンプト（共通スタイルの後に続ける） |
 | --- | --- | --- |
@@ -36,6 +36,10 @@ square 512x512, plenty of padding around the object.
 | `icecream.png` | ソフトクリーム | A soft-serve vanilla ice cream swirl in a waffle cone. |
 | `juice.png` | ジュース | A small juice box with a straw, decorated with an orange and apple pattern. |
 | `tea.png` | こうちゃ | A cup of black tea with a saucer, a lemon slice, and gentle steam curls. |
+| `nabana.png` | なばな | A small bunch of Japanese nanohana (rapeseed greens) with bright green stems and leaves and tiny yellow flower buds on top, tied with a little pink ribbon. |
+| `grape.png` | ぶどう | A bunch of round purple grapes with a green leaf and a curly vine. |
+| `babystar.png` | ベビースター | A small snack bag spilling crunchy, golden fried mini noodle snack pieces (no logos, no brand names, plain pastel bag with a star pattern). |
+| `monsterck.png` | ラブブクッキー | A cookie shaped like an original mischievous little monster with tall bunny-like ears and a toothy grin, decorated with pastel icing. Original design, not based on any existing character. |
 
 ## あると楽しいもの（任意）
 

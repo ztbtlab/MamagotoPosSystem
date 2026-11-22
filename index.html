@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ケーキやさん">
+  <meta name="theme-color" content="#ffd6e4">
+  <title>ケーキやさんレジ</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- はじめの がめん（iOSは タップしないと おとが でないため） -->
+  <div id="start" class="overlay start">
+    <div class="start-card">
+      <div class="start-emoji">🎂</div>
+      <h1>ケーキやさん<br>レジ</h1>
+      <button id="startBtn" class="big-btn pink">おみせを あける</button>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="shop-name" id="shopName">🍰 <span id="shopNameText">ケーキやさん</span></div>
+    <div class="top-actions">
+      <button id="soundBtn" class="icon-btn" aria-label="おと">🔊</button>
+      <button id="voiceBtn" class="icon-btn" aria-label="こえ">🗣️</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="menu" aria-label="しょうひん">
+      <div id="products" class="products"></div>
+    </section>
+
+    <section class="cart" aria-label="かいもの">
+      <h2 class="cart-title">🧺 おかいもの</h2>
+      <ul id="cartList" class="cart-list"></ul>
+      <div id="cartEmpty" class="cart-empty">ケーキを えらんでね</div>
+      <div class="cart-total">
+        <span>ごうけい</span>
+        <span><b id="totalYen">0</b> えん</span>
+      </div>
+      <div class="cart-buttons">
+        <button id="clearBtn" class="big-btn gray small">ぜんぶ けす</button>
+        <button id="payBtn" class="big-btn pink">おかいけい</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- おかいけい がめん -->
+  <div id="payScreen" class="overlay hidden">
+    <div class="pay-card">
+      <h2>おかいけい</h2>
+      <div class="pay-rows">
+        <div class="pay-row"><span>ごうけい</span><span><b id="payTotal">0</b> えん</span></div>
+        <div class="pay-row deposit"><span>おあずかり</span><span><b id="payDeposit">0</b> えん</span></div>
+        <div class="pay-row change" id="changeRow"><span id="changeLabel">あと</span><span><b id="payChange">0</b> えん</span></div>
+      </div>
+      <p class="pay-hint">おかねを タッチしてね</p>
+      <div id="money" class="money"></div>
+      <div class="pay-buttons">
+        <button id="payBackBtn" class="big-btn gray small">もどる</button>
+        <button id="payResetBtn" class="big-btn yellow small">やりなおし</button>
+        <button id="payJustBtn" class="big-btn blue small">ちょうど</button>
+        <button id="payOkBtn" class="big-btn pink">けってい</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- レシート がめん -->
+  <div id="receiptScreen" class="overlay hidden">
+    <div class="receipt-wrap">
+      <div id="receipt" class="receipt"></div>
+      <button id="nextBtn" class="big-btn pink">つぎの おきゃくさま</button>
+    </div>
+  </div>
+
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

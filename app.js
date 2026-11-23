@@ -369,6 +369,7 @@ function renderPay() {
   }
 }
 
+let thanksTimer = null; // おかいけい あとの よみあげ（つぎの おきゃくさんで とりけす）
 function confirmPay() {
   const t = total();
   if (state.deposit < t) {
@@ -387,7 +388,8 @@ function confirmPay() {
   $('payScreen').classList.add('hidden');
   showReceipt(t, state.deposit, change);
   Solo.onPaid();
-  setTimeout(() => say(change > 0 ? `${change}えんの おかえしです。ありがとうございました` : 'ちょうど いただきます。ありがとうございました'), 900);
+  clearTimeout(thanksTimer);
+  thanksTimer = setTimeout(() => say(change > 0 ? `${change}えんの おかえしです。ありがとうございました` : 'ちょうど いただきます。ありがとうございました'), 900);
   setTimeout(confetti, 1000);
 }
 
@@ -427,6 +429,7 @@ function nextCustomer() {
   state.deposit = 0;
   $('receiptScreen').classList.add('hidden');
   renderCart();
+  clearTimeout(thanksTimer);
   if (state.solo) Solo.next();
   else say('いらっしゃいませ');
 }
@@ -690,7 +693,14 @@ const Solo = (() => {
     r.classList.remove('hidden');
   }
 
-  return { next, show, setSolo, onCartChange, checkOrder, payment, onPaid, name: () => (cust ? cust.c.name : '') };
+  // おきゃくさんか ふきだしを タッチすると、ちゅうもんを もういちど いう
+  function repeat() {
+    if (phase !== 'order' && phase !== 'ready') return;
+    Sound.tap();
+    sayOrder();
+  }
+
+  return { next, show, repeat, setSolo, onCartChange, checkOrder, payment, onPaid, name: () => (cust ? cust.c.name : '') };
 })();
 
 /* ---------- はじめる ---------- */
@@ -713,6 +723,7 @@ function init() {
     $('start').classList.add('hidden');
     Solo.setSolo(true);
   });
+  $('customer').addEventListener('click', Solo.repeat);
   $('soloBtn').addEventListener('click', () => { Sound.tap(); Solo.setSolo(!state.solo); });
 
   // ひとりあそびの むずかしさ

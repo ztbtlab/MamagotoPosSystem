@@ -441,6 +441,7 @@ input { -webkit-user-select: text; user-select: text; font-family: inherit; colo
   transform: translateX(-50%);
   pointer-events: none;
 }
+.customer { cursor: pointer; }
 .customer-img.enter { animation: walkin-c 0.7s ease-out; }
 .bubble {
   flex: 1;

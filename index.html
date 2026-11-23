@@ -20,13 +20,18 @@
     <div class="start-card">
       <div class="start-emoji">🎂</div>
       <h1>ケーキやさん<br>レジ</h1>
-      <button id="startBtn" class="big-btn pink">おみせを あける</button>
+      <div class="start-buttons">
+        <button id="startBtn" class="big-btn pink">おみせを あける</button>
+        <button id="startSoloBtn" class="big-btn yellow">🧸 おきゃくさんを よぶ</button>
+      </div>
+      <p class="start-note">おきゃくさんを よぶと、ひとりでも あそべるよ</p>
     </div>
   </div>
 
   <header class="topbar">
     <div class="shop-name" id="shopName">🍰 <span id="shopNameText">ケーキやさん</span></div>
     <div class="top-actions">
+      <button id="soloBtn" class="icon-btn" aria-label="おきゃくさん">🧸</button>
       <button id="soundBtn" class="icon-btn" aria-label="おと">🔊</button>
       <button id="voiceBtn" class="icon-btn" aria-label="こえ">🗣️</button>
       <button id="settingsBtn" class="icon-btn" aria-label="せってい">⚙️</button>
@@ -39,6 +44,18 @@
     </section>
 
     <section class="cart" aria-label="かいもの">
+      <!-- ひとりあそび: おきゃくさん -->
+      <div id="customer" class="customer hidden">
+        <div class="customer-stage">
+          <img id="customerImg" class="customer-img" alt="" draggable="false">
+        </div>
+        <div id="bubble" class="bubble">
+          <div id="bubbleName" class="bubble-name"></div>
+          <div id="bubbleText" class="bubble-text"></div>
+          <ul id="orderList" class="order-list"></ul>
+        </div>
+        <div id="stars" class="stars" aria-label="きょうの おきゃくさん"></div>
+      </div>
       <h2 class="cart-title">🧺 おかいもの</h2>
       <ul id="cartList" class="cart-list"></ul>
       <div id="cartEmpty" class="cart-empty">ケーキを えらんでね</div>
@@ -62,7 +79,7 @@
         <div class="pay-row deposit"><span>おあずかり</span><span><b id="payDeposit">0</b> えん</span></div>
         <div class="pay-row change" id="changeRow"><span id="changeLabel">あと</span><span><b id="payChange">0</b> えん</span></div>
       </div>
-      <p class="pay-hint">おかねを タッチしてね</p>
+      <p class="pay-hint" id="payHint">おかねを タッチしてね</p>
       <div id="money" class="money"></div>
       <div class="pay-buttons">
         <button id="payBackBtn" class="big-btn gray small">もどる</button>
@@ -76,7 +93,10 @@
   <!-- レシート がめん -->
   <div id="receiptScreen" class="overlay hidden">
     <div class="receipt-wrap">
-      <div id="receipt" class="receipt"></div>
+      <div class="receipt-row">
+        <div id="receipt" class="receipt"></div>
+        <img id="receiptCustomer" class="receipt-customer hidden" alt="" draggable="false">
+      </div>
       <button id="nextBtn" class="big-btn pink">つぎの おきゃくさま</button>
     </div>
   </div>
@@ -89,12 +109,19 @@
         <span>おみせの なまえ</span>
         <input id="settingsShopName" type="text" maxlength="16" autocomplete="off">
       </label>
+      <h3>🧸 おきゃくさんの ちゅうもん</h3>
+      <div id="levelBtns" class="level-btns">
+        <button data-level="1">かんたん<small>1しゅるい・1こ</small></button>
+        <button data-level="2">ふつう<small>2しゅるい・2こ まで</small></button>
+        <button data-level="3">むずかしい<small>3しゅるい・3こ まで</small></button>
+      </div>
       <h3>ねだん</h3>
       <ul id="priceList" class="price-list"></ul>
       <div class="settings-buttons">
         <button id="settingsResetBtn" class="big-btn gray small">ねだんを もとに もどす</button>
         <button id="settingsCloseBtn" class="big-btn pink">とじる</button>
       </div>
+      <p class="version">v2026.11.23 · 2026-11-23</p>
     </div>
   </div>
 

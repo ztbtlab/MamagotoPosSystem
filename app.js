@@ -40,6 +40,21 @@ const MONEY = [
   { value: 10000, type: 'bill', cls: 'b10000' },
 ];
 
+/* ひとりあそびの おきゃくさん（えほんの キャラクター）
+ *  images/customers/<id>/<ひょうじょう>.webp
+ *  ひょうじょう: neutral smile thinking excited thanks surprised */
+const CUSTOMERS = [
+  { id: 'michan',          name: 'みーちゃん' },
+  { id: 'ponta',           name: 'ポンタ' },
+  { id: 'kuru',            name: 'クル' },
+  { id: 'granny_squirrel', name: 'りすの おばあさん' },
+  { id: 'little_squirrel', name: 'ちいさな りすのこ' },
+  { id: 'rono',            name: 'ロノ' },
+  { id: 'mike',            name: 'ミケ' },
+  { id: 'konta',           name: 'コンタ' },
+];
+const FACES = ['neutral', 'smile', 'thinking', 'excited', 'thanks', 'surprised'];
+
 const CONFETTI = ['🎉', '✨', '💖', '🍓', '🌟', '🎀', '🍰'];
 
 /* ---------- ほぞん ---------- */
@@ -60,6 +75,8 @@ const state = {
   voice: store.get('voice', true),
   receiptNo: store.get('receiptNo', 0),
   shopName: store.get('shopName', 'ケーキやさん'),
+  solo: false, // ひとりあそび（はじめの がめんで えらぶ）
+  level: store.get('level', 2),
 };
 
 // しょきの ねだん（「もとに もどす」で つかう）と、ほぞん した ねだん
@@ -242,6 +259,7 @@ function addItem(id, fromEl) {
   Sound.beep();
   if (fromEl) { pop(fromEl); flyToCart(productById(id), fromEl); }
   renderCart();
+  Solo.onCartChange(id, +1);
 }
 
 function changeQty(id, delta) {
@@ -249,6 +267,7 @@ function changeQty(id, delta) {
   if (q <= 0) state.cart.delete(id); else state.cart.set(id, q);
   delta > 0 ? Sound.beep() : Sound.down();
   renderCart();
+  Solo.onCartChange(id, delta);
 }
 
 function flyToCart(p, fromEl) {
@@ -319,7 +338,14 @@ function renderMoney() {
 
 function openPay() {
   if (state.cart.size === 0) return;
+  if (!Solo.checkOrder()) return;
   state.deposit = 0;
+  $('payHint').textContent = 'おかねを タッチしてね';
+  const paid = Solo.payment(total());
+  if (paid) {
+    state.deposit = paid;
+    $('payHint').textContent = `${Solo.name()}が ${yen(paid)}えん だしたよ。「けってい」を おしてね`;
+  }
   Sound.tap();
   $('payScreen').classList.remove('hidden');
   renderPay();
@@ -343,6 +369,7 @@ function renderPay() {
   }
 }
 
+let thanksTimer = null; // おかいけい あとの よみあげ（つぎの おきゃくさんで とりけす）
 function confirmPay() {
   const t = total();
   if (state.deposit < t) {
@@ -360,7 +387,9 @@ function confirmPay() {
   Sound.fanfare();
   $('payScreen').classList.add('hidden');
   showReceipt(t, state.deposit, change);
-  setTimeout(() => say(change > 0 ? `${change}えんの おかえしです。ありがとうございました` : 'ちょうど いただきます。ありがとうございました'), 900);
+  Solo.onPaid();
+  clearTimeout(thanksTimer);
+  thanksTimer = setTimeout(() => say(change > 0 ? `${change}えんの おかえしです。ありがとうございました` : 'ちょうど いただきます。ありがとうございました'), 900);
   setTimeout(confetti, 1000);
 }
 
@@ -400,7 +429,9 @@ function nextCustomer() {
   state.deposit = 0;
   $('receiptScreen').classList.add('hidden');
   renderCart();
-  say('いらっしゃいませ');
+  clearTimeout(thanksTimer);
+  if (state.solo) Solo.next();
+  else say('いらっしゃいませ');
 }
 
 function confetti() {
@@ -425,6 +456,7 @@ function renderToggles() {
   $('soundBtn').classList.toggle('off', !state.sound);
   $('soundBtn').textContent = state.sound ? '🔊' : '🔇';
   $('voiceBtn').classList.toggle('off', !state.voice);
+  $('soloBtn').classList.toggle('off', !state.solo);
   $('shopNameText').textContent = state.shopName;
 }
 
@@ -488,6 +520,189 @@ function closeSettings() {
   Sound.tap();
 }
 
+/* =========================================================
+ *  ひとりあそび（おきゃくさんが きて ちゅうもんする）
+ * ========================================================= */
+const Solo = (() => {
+  const COUNT = ['', 'ひとつ', 'ふたつ', 'みっつ'];
+  let cust = null;        // { c, order: Map(id -> qty), paid }
+  let phase = 'off';      // off | order | ready | paid
+  let served = 0;
+  let lastId = '';
+  let faceTimer = null;
+
+  const img = (c, face) => `images/customers/${c.id}/${face}.webp`;
+  const rand = (n) => Math.floor(Math.random() * n);
+
+  function face(f) {
+    if (cust) $('customerImg').src = img(cust.c, f);
+  }
+  function faceFor(f, ms, back) {
+    clearTimeout(faceTimer);
+    face(f);
+    faceTimer = setTimeout(() => { face(back); if (phase === 'order') bubble(orderText()); }, ms);
+  }
+  function bubble(text) { $('bubbleText').textContent = text; }
+  function orderText() { return 'これ ください！'; }
+
+  function makeOrder() {
+    const level = state.level;
+    const kinds = 1 + rand(level);
+    const pool = PRODUCTS.slice();
+    const order = new Map();
+    for (let i = 0; i < kinds && pool.length; i++) {
+      const p = pool.splice(rand(pool.length), 1)[0];
+      order.set(p.id, 1 + rand(level));
+    }
+    return order;
+  }
+
+  function sayOrder() {
+    const parts = [...cust.order].map(([id, q]) => `${productById(id).name}を ${COUNT[q] || q + 'こ'}`);
+    say(`${cust.c.name.replace(/ /g, '')}です。${parts.join('と、')} ください`);
+  }
+
+  function renderOrder() {
+    const list = $('orderList');
+    list.innerHTML = '';
+    for (const [id, q] of cust.order) {
+      const p = productById(id);
+      const have = state.cart.get(id) || 0;
+      const li = document.createElement('li');
+      li.className = 'order-item' + (have === q ? ' done' : have > q ? ' over' : '');
+      li.dataset.id = id; li.dataset.q = q;
+      li.innerHTML = `${iconHTML(p)}<span class="oq">×${q}</span><span class="mark">${have === q ? '✓' : have > q ? '!' : ''}</span>`;
+      list.appendChild(li);
+    }
+  }
+
+  function renderStars() {
+    $('stars').textContent = served ? `⭐ ${served}にん` : '';
+  }
+
+  function matches() {
+    if (!cust || state.cart.size !== cust.order.size) return false;
+    for (const [id, q] of cust.order) if (state.cart.get(id) !== q) return false;
+    return true;
+  }
+
+  function next() {
+    if (!state.solo) return;
+    clearTimeout(faceTimer);
+    const choices = CUSTOMERS.filter(c => c.id !== lastId);
+    const c = choices[rand(choices.length)];
+    lastId = c.id;
+    FACES.forEach(f => { const i = new Image(); i.src = img(c, f); });
+    cust = { c, order: makeOrder(), paid: 0 };
+    phase = 'order';
+    $('bubbleName').textContent = c.name;
+    bubble(orderText());
+    renderOrder();
+    renderStars();
+    const el = $('customerImg');
+    el.classList.remove('enter'); void el.offsetWidth; el.classList.add('enter');
+    face('smile');
+    faceTimer = setTimeout(() => face('thinking'), 1400);
+    $('payBtn').classList.remove('glow');
+    sayOrder();
+  }
+
+  function show(on) {
+    $('customer').classList.toggle('hidden', !on);
+    document.body.classList.toggle('solo', on);
+    if (!on) { phase = 'off'; cust = null; clearTimeout(faceTimer); $('payBtn').classList.remove('glow'); }
+  }
+
+  function setSolo(on) {
+    state.solo = on;
+    show(on);
+    renderToggles();
+    if (on) { state.cart.clear(); renderCart(); next(); }
+    else say('おきゃくさん モード おわり');
+  }
+
+  function onCartChange(id, delta) {
+    if (phase !== 'order' && phase !== 'ready') return;
+    renderOrder();
+    const ok = matches();
+    $('payBtn').classList.toggle('glow', ok);
+    if (ok) {
+      phase = 'ready';
+      clearTimeout(faceTimer);
+      face('excited');
+      bubble('それ ください！ 「おかいけい」してね');
+      say('それ ください！');
+      return;
+    }
+    if (phase === 'ready') { phase = 'order'; bubble(orderText()); face('thinking'); }
+    if (delta > 0 && !cust.order.has(id)) {
+      bubble(`${productById(id).name}は たのんで ないよ`);
+      faceFor('surprised', 1600, 'thinking');
+      say('あれ？ それは たのんでないよ');
+    } else if (delta > 0 && (state.cart.get(id) || 0) > cust.order.get(id)) {
+      bubble(`${productById(id).name}は ${COUNT[cust.order.get(id)]}で いいよ`);
+      faceFor('surprised', 1600, 'thinking');
+      say(`${COUNT[cust.order.get(id)]}で いいよ`);
+    }
+  }
+
+  // おかいけい まえの チェック。ちがったら おしえて false
+  function checkOrder() {
+    if (!state.solo || !cust) return true;
+    if (matches()) return true;
+    let msg = '';
+    for (const [id, q] of cust.order) {
+      const have = state.cart.get(id) || 0;
+      if (have < q) { msg = `${productById(id).name}が まだだよ`; break; }
+      if (have > q) { msg = `${productById(id).name}は ${COUNT[q]}だよ`; break; }
+    }
+    if (!msg) {
+      const extra = [...state.cart.keys()].find(id => !cust.order.has(id));
+      if (extra) msg = `${productById(extra).name}は たのんで ないよ`;
+    }
+    Sound.down();
+    bubble('あれ？ ' + msg);
+    faceFor('surprised', 2000, 'thinking');
+    const b = $('bubble');
+    b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+    say('あれ？ ' + msg);
+    return false;
+  }
+
+  // おきゃくさんが だす おかね（ちょうど・100えん・500えん・1000えん きざみ など）
+  function payment(t) {
+    if (!state.solo || !cust) return 0;
+    // おつりが おおきく なりすぎないよう、ちかい きりの いい おかねで はらう
+    const units = t > 1000 ? [1000, 5000, 10000] : [100, 500, 1000];
+    const opts = [...new Set([t, ...units.map(u => Math.ceil(t / u) * u)])];
+    cust.paid = opts[rand(opts.length)];
+    return cust.paid;
+  }
+
+  function onPaid() {
+    if (!state.solo || !cust) { $('receiptCustomer').classList.add('hidden'); return; }
+    phase = 'paid';
+    served += 1;
+    clearTimeout(faceTimer);
+    face('thanks');
+    bubble('ありがとう！ また くるね');
+    renderStars();
+    $('payBtn').classList.remove('glow');
+    const r = $('receiptCustomer');
+    r.src = img(cust.c, 'thanks');
+    r.classList.remove('hidden');
+  }
+
+  // おきゃくさんか ふきだしを タッチすると、ちゅうもんを もういちど いう
+  function repeat() {
+    if (phase !== 'order' && phase !== 'ready') return;
+    Sound.tap();
+    sayOrder();
+  }
+
+  return { next, show, repeat, setSolo, onCartChange, checkOrder, payment, onPaid, name: () => (cust ? cust.c.name : '') };
+})();
+
 /* ---------- はじめる ---------- */
 function init() {
   renderProducts();
@@ -499,15 +714,32 @@ function init() {
     Sound.unlock();
     Sound.fanfare();
     $('start').classList.add('hidden');
+    if (state.solo) Solo.setSolo(false);
     say('いらっしゃいませ');
   });
+  $('startSoloBtn').addEventListener('click', () => {
+    Sound.unlock();
+    Sound.fanfare();
+    $('start').classList.add('hidden');
+    Solo.setSolo(true);
+  });
+  $('customer').addEventListener('click', Solo.repeat);
+  $('soloBtn').addEventListener('click', () => { Sound.tap(); Solo.setSolo(!state.solo); });
+
+  // ひとりあそびの むずかしさ
+  const renderLevel = () => $('levelBtns').querySelectorAll('button').forEach(b =>
+    b.classList.toggle('on', Number(b.dataset.level) === state.level));
+  $('levelBtns').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    state.level = Number(b.dataset.level); store.set('level', state.level); renderLevel(); Sound.tap();
+  }));
+  renderLevel();
 
   // iOS: あとから もどってきた ときも おとを ふっかつ
   document.addEventListener('touchend', Sound.unlock, { passive: true });
   document.addEventListener('click', Sound.unlock);
 
   $('payBtn').addEventListener('click', openPay);
-  $('clearBtn').addEventListener('click', () => { state.cart.clear(); Sound.down(); renderCart(); });
+  $('clearBtn').addEventListener('click', () => { state.cart.clear(); Sound.down(); renderCart(); Solo.onCartChange('', 0); });
   $('payBackBtn').addEventListener('click', () => { Sound.tap(); $('payScreen').classList.add('hidden'); });
   $('payResetBtn').addEventListener('click', () => { state.deposit = 0; Sound.down(); renderPay(); });
   $('payJustBtn').addEventListener('click', () => { state.deposit = total(); Sound.coin(); renderPay(); });
